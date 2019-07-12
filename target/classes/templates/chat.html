@@ -751,16 +751,24 @@ Website: http://emilcarlsson.se/
         </div>
         <div class="messages">
 
-                <ul th:each="item: ${message}">
+                <ul>
 
-                        <li th:if="${item.id_usr1=='1'}" class="send">
-                            <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
-                            <p th:text="${item.msj}"></p>
-                        </li>
-                        <li th:unless="${item.id_usr2=='1'}" class="replies">
-                            <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="">
-                            <p th:text="${item.msj}"></p>
-                        </li>
+
+                    <div th:each="item: ${messages}" th:switch="${item.id_usr1}">
+
+                    <li th:case="'1'" class="sent">
+                        <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
+                        <p th:text="${item.msj}"></p>
+                    </li>
+
+
+
+                    <li th:case="'2'" class="replies">
+                        <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="">
+                        <p th:text="${item.msj}"></p>
+                    </li>
+
+                    </div>
 
                 </ul>
         </div>
@@ -812,6 +820,8 @@ function newMessage() {
 	if($.trim(message) == '') {
 		return false;
 	}
+
+
 	$('<li class="sent"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
 	$('.message-input input').val(null);
 	$('.contact.active .preview').html('<span>You: </span>' + message);

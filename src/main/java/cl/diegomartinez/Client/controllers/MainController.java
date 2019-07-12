@@ -40,7 +40,7 @@ public class MainController {
         //Chat[] chat = new Chat[] {item};
 
         //model.addAttribute("games", elements != null ? String.join(", ", elements) : "null");
-        model.addAttribute("message",chat);
+        model.addAttribute("messages",chat);
 
         //model.addAttribute("message", busConnection.request("juCha", "get_messages"));
 
@@ -50,9 +50,18 @@ public class MainController {
     @PostMapping("/newmessage")
     @ResponseBody
     public void addMessage(@RequestBody MessageDto message) {
-        String var =JsonMapper.asJsonString(message);
 
+        message.setId_usr1(1L);
+        message.setId_usr2(2L);
+        String var =JsonMapper.asJsonString(message);
+        System.out.println(message.getId_usr1());
         System.out.println(message.getContent());
+
+        String Json=busConnection.request("juCha", "send_message:"+var);
+
+
+
+
     }
 
     @ModelAttribute("sessionUser")
