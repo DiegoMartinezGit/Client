@@ -1,6 +1,7 @@
 package cl.diegomartinez.Client.controllers;
 import cl.diegomartinez.Client.*;
 import cl.vicenterivera.SOALib.JsonMapper;
+import cl.vicenterivera.SOALib.RequestBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import cl.diegomartinez.Client.Chat;
 
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.UUID;
 
 @Controller
@@ -74,42 +76,37 @@ public class MainController {
     }
 
     @PostMapping("/login")
-    public String loginPost(@ModelAttribute("sessionUser") User sessionUser, @RequestParam("username") String username, Model model) {
-        if (sessionUser.getUuid() != null) {
-            return "redirect:/login";
-        }
-        /*String username = loginDto.getUsername();
-        String response = RequestBuilder.withJsonParameters("juUse", "get_user").addParameter("username", username)
+    public String loginPost(@ModelAttribute("sessionUser") User sessionUser, @RequestParam("email") String email, Model model) {
+        deleteSessionUser(model);
+
+        String response = RequestBuilder
+                .withJsonParameters("juUse", "get_user").addParameter("email", email)
                 .send(busConnection);
         if (response == null) {
-            return "redirect:/login";
+            return "redirect:/login?error";
         }
 
         Map<String, Object> map = JsonMapper.jsonAsMap(response);
+
         if (map.containsKey("error")) {
             System.out.println(map.get("error"));
-            return "redirect:/login";
-        }*/
-
-        if (!(username.equals("Dummy_A"))) {
-            return "redirect:/login";
+            return "redirect:/login?error";
         }
 
-        User user = new User();
-        user.setId(1L);
-        user.setUuid(UUID.randomUUID());
-        System.out.println(user.getUuid());
-        user.setEmail("1@1.1");
-        user.setUsername("Dummy_A");
+        User user = JsonMapper.fromJsonString(response, User.class);
+        if (user == null) {
+            return "redirect:/login?not_found";
+        }
 
-
-        //User user = JsonMapper.fromJsonString(response, User.class);
-        model.addAttribute("sessionUser", user);
+        sessionUser = user;
+        sessionUser.setUsername(user.getUsername());
+        model.addAttribute("sessionUser", sessionUser);
 
         return "redirect:/chat";
     }
-
-
+    private void deleteSessionUser(Model model) {
+        model.addAttribute("sessionUser", null);
+    }
 
 
 }
